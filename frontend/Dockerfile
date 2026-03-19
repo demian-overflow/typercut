@@ -1,0 +1,19 @@
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install --legacy-peer-deps
+
+COPY . .
+# VITE_ANTHROPIC_API_KEY is a runtime secret injected via env at startup,
+# not baked into the image. The build uses a placeholder; nginx serves an
+# env-config.js that overrides it at runtime.
+ARG VITE_API_URL=__VITE_API_URL__
+ENV VITE_API_URL=$VITE_API_URL
+RUN npm run build
+
+FROM nginx:1.27-alpine AS runtime
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
