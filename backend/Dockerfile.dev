@@ -1,0 +1,19 @@
+FROM rust:1.85-slim-bookworm
+
+RUN apt-get update \
+ && apt-get install -y pkg-config libssl-dev cmake libsasl2-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN cargo install cargo-watch
+
+WORKDIR /app
+
+# Pre-fetch dependencies using a stub binary.
+# The real source is volume-mounted at runtime; this layer just warms the cache.
+COPY Cargo.toml Cargo.lock ./
+RUN mkdir -p src migrations \
+ && echo 'fn main() {}' > src/main.rs \
+ && cargo build 2>/dev/null || true \
+ && rm -rf src
+
+CMD ["cargo", "watch", "-q", "-c", "-x", "run"]
