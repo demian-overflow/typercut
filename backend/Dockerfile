@@ -1,7 +1,7 @@
 FROM rust:1.88-slim-bookworm AS builder
 
 RUN apt-get update \
- && apt-get install -y pkg-config libssl-dev cmake libsasl2-dev \
+ && apt-get install -y pkg-config libssl-dev cmake libsasl2-dev g++ \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
