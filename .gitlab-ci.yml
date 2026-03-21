@@ -72,6 +72,7 @@ fingerprint:
   before_script:
     - until docker info; do sleep 1; done
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker login -u gitlab+deploy-token-2 -p $NIGHTGLOW_REGISTRY_TOKEN registry.noogoo.ch
     - apk add --no-cache python3
   script:
     - docker pull registry.noogoo.ch/orderout/nightglow:latest
