@@ -3,6 +3,7 @@ pub mod config;
 pub mod db;
 pub mod entity;
 pub mod events;
+pub mod generate;
 pub mod materials;
 pub mod sessions;
 
@@ -28,6 +29,7 @@ pub struct AppState {
 pub fn build_app(state: AppState) -> Router {
     Router::new()
         .route("/health", get(health))
+        .route("/generate", post(generate::generate))
         .route("/auth/google", get(auth::routes::login))
         .route("/auth/google/callback", get(auth::routes::callback))
         .route("/auth/me", get(auth::routes::me))

@@ -23,6 +23,7 @@ build-frontend:
     - docker build
         --cache-from $CI_REGISTRY_IMAGE/frontend:latest
         --build-arg BUILDKIT_INLINE_CACHE=1
+        --build-arg VITE_API_URL=https://typercut.noogoo.ch
         -t $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
         -t $CI_REGISTRY_IMAGE/frontend:latest
         frontend/

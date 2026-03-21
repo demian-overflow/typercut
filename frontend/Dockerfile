@@ -5,10 +5,7 @@ COPY package.json package-lock.json ./
 RUN npm install --legacy-peer-deps
 
 COPY . .
-# VITE_ANTHROPIC_API_KEY is a runtime secret injected via env at startup,
-# not baked into the image. The build uses a placeholder; nginx serves an
-# env-config.js that overrides it at runtime.
-ARG VITE_API_URL=__VITE_API_URL__
+ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 
