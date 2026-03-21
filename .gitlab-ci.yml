@@ -1,5 +1,6 @@
 stages:
   - build
+  - fingerprint
   - cleanup
 
 variables:
@@ -60,6 +61,37 @@ build-backend:
       changes:
         - backend/**/*
   timeout: 45m
+
+# ── Fingerprint ───────────────────────────────────────────────────────────────
+
+fingerprint:
+  stage: fingerprint
+  image: docker:27
+  services:
+    - docker:27-dind
+  before_script:
+    - until docker info; do sleep 1; done
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - apk add --no-cache python3
+  script:
+    - docker pull registry.noogoo.ch/orderout/nightglow:latest
+    - docker network create fpnet
+    - docker run -d --name nightglow --network fpnet
+        registry.noogoo.ch/orderout/nightglow:latest
+        --headless --webdriver 7000 about:blank
+    - NIGHTGLOW_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' nightglow)
+    - echo "nightglow IP = $NIGHTGLOW_IP"
+    - docker run --rm --network fpnet
+        -v "$CI_PROJECT_DIR/tests/integration:/tests"
+        python:3.12-slim
+        python3 /tests/fingerprint.py --url "http://$NIGHTGLOW_IP:7000"
+  after_script:
+    - docker stop nightglow 2>/dev/null || true
+    - docker rm   nightglow 2>/dev/null || true
+    - docker network rm fpnet 2>/dev/null || true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  allow_failure: true
 
 # ── Registry cleanup ──────────────────────────────────────────────────────────
 
