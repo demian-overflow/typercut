@@ -31,6 +31,7 @@ build-frontend:
     - docker push $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
     - docker push $CI_REGISTRY_IMAGE/frontend:latest
   rules:
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "api"
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - frontend/**/*
@@ -57,6 +58,7 @@ build-backend:
     - docker push $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
     - docker push $CI_REGISTRY_IMAGE/backend:latest
   rules:
+    - if: $CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "api"
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - backend/**/*
