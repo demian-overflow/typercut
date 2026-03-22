@@ -1,4 +1,4 @@
-# lernpunkt — SpeedTyper Spec
+# typercut — SpeedTyper Spec
 
 ## Overview
 

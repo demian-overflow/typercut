@@ -26,7 +26,7 @@ export async function loginAs(page: Page, user = FAKE_USER) {
   await page.goto('/');
 
   await page.evaluate(
-    ([token]) => localStorage.setItem('lernpunkt_token', token),
+    ([token]) => localStorage.setItem('typercut_token', token),
     [FAKE_TOKEN],
   );
 

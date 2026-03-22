@@ -132,7 +132,7 @@ function TypingApp({ user, onLogout }: TypingAppProps) {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-bold text-gray-800">lernpunkt</h1>
+          <h1 className="text-xl font-bold text-gray-800">typercut</h1>
           <div className="flex items-center gap-3">
             {user.picture && (
               <img src={user.picture} alt={user.name} className="w-8 h-8 rounded-full" />

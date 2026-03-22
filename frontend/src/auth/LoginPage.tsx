@@ -4,7 +4,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-8 text-center space-y-6">
-        <h1 className="text-2xl font-bold text-gray-800">lernpunkt</h1>
+        <h1 className="text-2xl font-bold text-gray-800">typercut</h1>
         <p className="text-gray-500 text-sm">Sign in to start practicing.</p>
 
         <a

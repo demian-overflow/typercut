@@ -21,8 +21,8 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY --from=builder /app/target/release/lernpunkt-backend /app/lernpunkt-backend
+COPY --from=builder /app/target/release/typercut-backend /app/typercut-backend
 COPY --from=builder /app/migrations /app/migrations
 
 EXPOSE 3001
-ENTRYPOINT ["/app/lernpunkt-backend"]
+ENTRYPOINT ["/app/typercut-backend"]

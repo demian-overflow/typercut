@@ -4,7 +4,7 @@
 //! The call is fire-and-forget: it spawns a Tokio task and returns immediately
 //! so request latency is not affected by Kafka availability.
 //!
-//! Topic layout: one topic `lernpunkt.events`, partitioned by user_id.
+//! Topic layout: one topic `typercut.events`, partitioned by user_id.
 //! Consumers (ClickHouse sink, ML pipeline, etc.) subscribe to this topic.
 
 use std::sync::Arc;
@@ -16,7 +16,7 @@ use serde::Serialize;
 use serde_json::Value;
 use uuid::Uuid;
 
-pub const TOPIC: &str = "lernpunkt.events";
+pub const TOPIC: &str = "typercut.events";
 
 #[derive(Clone)]
 pub struct EventEmitter {

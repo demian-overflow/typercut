@@ -3,15 +3,15 @@ services:
     image: pgvector/pgvector:pg17
     restart: unless-stopped
     environment:
-      POSTGRES_USER: lernpunkt
-      POSTGRES_PASSWORD: lernpunkt
-      POSTGRES_DB: lernpunkt
+      POSTGRES_USER: typercut
+      POSTGRES_PASSWORD: typercut
+      POSTGRES_DB: typercut
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U lernpunkt"]
+      test: ["CMD-SHELL", "pg_isready -U typercut"]
       interval: 5s
       timeout: 5s
       retries: 5

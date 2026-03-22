@@ -1,4 +1,4 @@
-# lernpunkt
+# typercut
 
 AI-powered speed typing practice. Pick a topic, Claude generates the text, you type it.
 
@@ -34,7 +34,7 @@ cp backend/.env.example backend/.env
 Edit `backend/.env`:
 
 ```
-DATABASE_URL=postgres://lernpunkt:lernpunkt@localhost:5432/lernpunkt
+DATABASE_URL=postgres://typercut:typercut@localhost:5432/typercut
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-client-secret
 JWT_SECRET=$(openssl rand -hex 32)
@@ -108,7 +108,7 @@ npm run dev
 ## Project structure
 
 ```
-lernpunkt/
+typercut/
 ├── backend/                  Rust/Axum API server
 │   ├── src/
 │   │   ├── auth/             Google OAuth + JWT

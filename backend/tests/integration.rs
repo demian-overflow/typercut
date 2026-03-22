@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 use axum::{body::Body, http::Request};
 use http_body_util::BodyExt;
-use lernpunkt_backend::{build_app, AppState};
+use typercut_backend::{build_app, AppState};
 use oauth2::{
     basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl,
 };
@@ -34,7 +34,7 @@ fn fake_oauth_client() -> BasicClient {
 /// Build an AppState that has no real DB — panics if a DB query is attempted.
 /// Sufficient for routes that only read JWT / config.
 fn test_state(db: DatabaseConnection) -> AppState {
-    use lernpunkt_backend::config::Config;
+    use typercut_backend::config::Config;
     AppState {
         config: Arc::new(Config {
             database_url: "postgres://test".to_string(),

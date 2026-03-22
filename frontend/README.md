@@ -1,4 +1,4 @@
-# lernpunkt
+# typercut
 
 ```bash
 cp .env.local.example .env.local

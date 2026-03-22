@@ -1,5 +1,5 @@
 const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
-const TOKEN_KEY = 'lernpunkt_token';
+const TOKEN_KEY = 'typercut_token';
 
 export interface User {
   id: string;

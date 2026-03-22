@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::http::{HeaderValue, Method};
-use lernpunkt_backend::{auth, build_app, config::Config, db, events::EventEmitter, AppState};
+use typercut_backend::{auth, build_app, config::Config, db, events::EventEmitter, AppState};
 use tower_http::cors::{AllowOrigin, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -13,7 +13,7 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "lernpunkt_backend=debug,tower_http=debug".into()),
+                .unwrap_or_else(|_| "typercut_backend=debug,tower_http=debug".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();

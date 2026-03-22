@@ -3,16 +3,16 @@ services:
     image: pgvector/pgvector:pg17
     restart: unless-stopped
     environment:
-      POSTGRES_USER: lernpunkt
-      POSTGRES_PASSWORD: lernpunkt
-      POSTGRES_DB: lernpunkt
+      POSTGRES_USER: typercut
+      POSTGRES_PASSWORD: typercut
+      POSTGRES_DB: typercut
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-postgres.sh:/docker-entrypoint-initdb.d/init-postgres.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U lernpunkt"]
+      test: ["CMD-SHELL", "pg_isready -U typercut"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -56,7 +56,7 @@ services:
       - path: ./backend/.env
         required: false
     environment:
-      DATABASE_URL: postgres://lernpunkt:lernpunkt@postgres:5432/lernpunkt
+      DATABASE_URL: postgres://typercut:typercut@postgres:5432/typercut
       ACTION_POOL_URL: http://action_pool:8000
       KAFKA_BROKERS: kafka:9092
     depends_on:
@@ -77,8 +77,8 @@ services:
         required: false
     environment:
       DATABASE__HOSTNAME: postgres
-      DATABASE__USERNAME: lernpunkt
-      DATABASE__PASSWORD: lernpunkt
+      DATABASE__USERNAME: typercut
+      DATABASE__PASSWORD: typercut
       DATABASE__DB: action_pool
       DATABASE__PORT: "5432"
     depends_on:

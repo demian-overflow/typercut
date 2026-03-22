@@ -16,7 +16,7 @@ test.describe('Authentication', () => {
 
   test('shows app when authenticated', async ({ page }) => {
     await loginAs(page);
-    await expect(page.getByText('lernpunkt')).toBeVisible();
+    await expect(page.getByText('typercut')).toBeVisible();
     await expect(page.getByText(FAKE_USER.name)).toBeVisible();
     await expect(page.getByText('Sign out')).toBeVisible();
   });
@@ -41,7 +41,7 @@ test.describe('Authentication', () => {
     await page.goto(`/?token=${token}`);
 
     // Token should be stored and URL cleaned up
-    const stored = await page.evaluate(() => localStorage.getItem('lernpunkt_token'));
+    const stored = await page.evaluate(() => localStorage.getItem('typercut_token'));
     expect(stored).toBe(token);
 
     // URL should not contain ?token= anymore
