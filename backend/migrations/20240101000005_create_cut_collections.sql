@@ -16,7 +16,7 @@ CREATE INDEX idx_cut_collections_user_id ON cut_collections(user_id);
 -- Trigger to auto-update updated_at
 CREATE TRIGGER set_cut_collections_updated_at
     BEFORE UPDATE ON cut_collections
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    FOR EACH ROW EXECUTE FUNCTION touch_updated_at();
 
 -- Link materials to a cut collection (optional; NULL means uncollected)
 ALTER TABLE materials
