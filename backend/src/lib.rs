@@ -1,5 +1,6 @@
 pub mod auth;
 pub mod config;
+pub mod cut_collections;
 pub mod db;
 pub mod entity;
 pub mod events;
@@ -33,6 +34,10 @@ pub fn build_app(state: AppState) -> Router {
         .route("/auth/google", get(auth::routes::login))
         .route("/auth/google/callback", get(auth::routes::callback))
         .route("/auth/me", get(auth::routes::me))
+        // Cut collections
+        .route("/cut-collections", post(cut_collections::routes::create).get(cut_collections::routes::list))
+        .route("/cut-collections/{id}", delete(cut_collections::routes::remove))
+        .route("/cut-collections/{id}/snippets", get(cut_collections::routes::list_snippets))
         // Material ingestion
         .route("/materials", post(materials::routes::create).get(materials::routes::list))
         .route("/materials/upload", post(materials::routes::upload_file))

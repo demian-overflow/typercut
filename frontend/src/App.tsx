@@ -5,6 +5,7 @@ import LoginPage from './auth/LoginPage';
 import TextGenerator from './components/TextGenerator/TextGenerator';
 import MaterialIngestion from './components/MaterialIngestion/MaterialIngestion';
 import SnippetBrowser from './components/SnippetBrowser/SnippetBrowser';
+import CutCollectionBrowser from './components/CutCollectionBrowser/CutCollectionBrowser';
 import SpeedTyper, { type TypingStats } from './components/SpeedTyper/SpeedTyper';
 import ResultsPanel from './components/ResultsPanel/ResultsPanel';
 import { fetchMe } from './lib/auth';
@@ -27,7 +28,7 @@ export default function App() {
   );
 }
 
-type AppState = 'setup' | 'browse' | 'typing' | 'done';
+type AppState = 'setup' | 'collections' | 'browse' | 'typing' | 'done';
 type SetupTab = 'generate' | 'ingest';
 
 function Inner() {
@@ -134,6 +135,12 @@ function TypingApp({ user, onLogout }: TypingAppProps) {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-gray-800">typercut</h1>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setAppState('collections')}
+              className="text-sm text-indigo-500 hover:text-indigo-700 font-medium"
+            >
+              Collections
+            </button>
             {user.picture && (
               <img src={user.picture} alt={user.name} className="w-8 h-8 rounded-full" />
             )}
@@ -146,6 +153,14 @@ function TypingApp({ user, onLogout }: TypingAppProps) {
             </button>
           </div>
         </div>
+
+        {/* Cut Collection Browser */}
+        {appState === 'collections' && (
+          <CutCollectionBrowser
+            onSelect={(t, id) => handleSnippetSelected(t, id)}
+            onBack={handleNewText}
+          />
+        )}
 
         {/* Setup: two tabs */}
         {appState === 'setup' && (
@@ -187,7 +202,7 @@ function TypingApp({ user, onLogout }: TypingAppProps) {
         {appState === 'browse' && (
           <SnippetBrowser
             snippets={pendingSnippets}
-            onSelect={(text, id) => handleSnippetSelected(text, id)}
+            onSelect={(t, id) => handleSnippetSelected(t, id)}
             onBack={handleNewText}
           />
         )}

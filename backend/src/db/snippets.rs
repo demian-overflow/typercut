@@ -1,12 +1,13 @@
 use anyhow::Result;
 use sea_orm::{
-    ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
-    QueryOrder, QuerySelect,
+    ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, JoinType,
+    QueryFilter, QueryOrder, QuerySelect, RelationTrait,
 };
 use sea_orm::sea_query::{Expr, Order};
 use uuid::Uuid;
 
-use crate::entity::snippet::{self, ActiveModel, Column, Entity as Snippet};
+use crate::entity::material;
+use crate::entity::snippet::{self, ActiveModel, Column, Entity as Snippet, Relation};
 
 pub struct SnippetInput {
     pub text: String,
@@ -41,6 +42,21 @@ pub async fn list_by_material(
 ) -> Result<Vec<snippet::Model>> {
     Ok(Snippet::find()
         .filter(Column::MaterialId.eq(material_id))
+        .filter(Column::UserId.eq(user_id))
+        .order_by_asc(Column::CreatedAt)
+        .all(db)
+        .await?)
+}
+
+/// Returns all snippets belonging to a cut collection (via their parent materials).
+pub async fn list_by_collection(
+    db: &DatabaseConnection,
+    collection_id: Uuid,
+    user_id: Uuid,
+) -> Result<Vec<snippet::Model>> {
+    Ok(Snippet::find()
+        .join(JoinType::InnerJoin, Relation::Material.def())
+        .filter(material::Column::CutCollectionId.eq(collection_id))
         .filter(Column::UserId.eq(user_id))
         .order_by_asc(Column::CreatedAt)
         .all(db)

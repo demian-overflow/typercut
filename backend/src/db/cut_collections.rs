@@ -1,25 +1,23 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use sea_orm::{
     ActiveModelTrait, ActiveValue::Set, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
     QueryOrder,
 };
 use uuid::Uuid;
 
-use crate::entity::material::{self, ActiveModel, Column, Entity as Material};
+use crate::entity::cut_collection::{self, ActiveModel, Column, Entity as CutCollection};
 
 pub async fn create(
     db: &DatabaseConnection,
     user_id: Uuid,
-    title: &str,
-    content: &str,
-    cut_collection_id: Option<Uuid>,
-) -> Result<material::Model> {
+    name: &str,
+    description: Option<&str>,
+) -> Result<cut_collection::Model> {
     let active = ActiveModel {
         id: Set(Uuid::new_v4()),
         user_id: Set(user_id),
-        cut_collection_id: Set(cut_collection_id),
-        title: Set(title.to_string()),
-        content: Set(content.to_string()),
+        name: Set(name.to_string()),
+        description: Set(description.map(str::to_string)),
         ..Default::default()
     };
     Ok(active.insert(db).await?)
@@ -28,8 +26,8 @@ pub async fn create(
 pub async fn list_by_user(
     db: &DatabaseConnection,
     user_id: Uuid,
-) -> Result<Vec<material::Model>> {
-    Ok(Material::find()
+) -> Result<Vec<cut_collection::Model>> {
+    Ok(CutCollection::find()
         .filter(Column::UserId.eq(user_id))
         .order_by_desc(Column::CreatedAt)
         .all(db)
@@ -40,25 +38,15 @@ pub async fn find_by_id(
     db: &DatabaseConnection,
     id: Uuid,
     user_id: Uuid,
-) -> Result<Option<material::Model>> {
-    Ok(Material::find_by_id(id)
+) -> Result<Option<cut_collection::Model>> {
+    Ok(CutCollection::find_by_id(id)
         .filter(Column::UserId.eq(user_id))
         .one(db)
         .await?)
 }
 
-pub async fn find_by_id_required(
-    db: &DatabaseConnection,
-    id: Uuid,
-    user_id: Uuid,
-) -> Result<material::Model> {
-    find_by_id(db, id, user_id)
-        .await?
-        .ok_or_else(|| anyhow!("material {id} not found"))
-}
-
 pub async fn delete(db: &DatabaseConnection, id: Uuid, user_id: Uuid) -> Result<bool> {
-    let result = Material::delete_by_id(id)
+    let result = CutCollection::delete_by_id(id)
         .filter(Column::UserId.eq(user_id))
         .exec(db)
         .await?;

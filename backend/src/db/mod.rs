@@ -1,3 +1,4 @@
+pub mod cut_collections;
 pub mod materials;
 pub mod sessions;
 pub mod snippets;

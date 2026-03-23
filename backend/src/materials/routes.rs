@@ -81,7 +81,7 @@ pub async fn create(
         Err(r) => return r,
     };
 
-    match db::materials::create(&state.db, user_id, &body.title, &body.content).await {
+    match db::materials::create(&state.db, user_id, &body.title, &body.content, None).await {
         Ok(m) => {
             state.events.emit(
                 "material.created",
@@ -408,7 +408,28 @@ async fn create_and_process(
     content: String,
     source: &str,
 ) -> Response {
-    let material = match db::materials::create(&state.db, user_id, &title, &content).await {
+    // Auto-create a cut collection for each ingested material
+    let collection = match db::cut_collections::create(&state.db, user_id, &title, None).await {
+        Ok(c) => c,
+        Err(e) => {
+            tracing::error!("create cut_collection: {e}");
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": "Database error" })),
+            )
+                .into_response();
+        }
+    };
+
+    let material = match db::materials::create(
+        &state.db,
+        user_id,
+        &title,
+        &content,
+        Some(collection.id),
+    )
+    .await
+    {
         Ok(m) => m,
         Err(e) => {
             tracing::error!("create material: {e}");
@@ -492,6 +513,10 @@ async fn create_and_process(
             (
                 StatusCode::CREATED,
                 Json(serde_json::json!({
+                    "cut_collection": {
+                        "id": collection.id.to_string(),
+                        "name": collection.name,
+                    },
                     "material": {
                         "id": material.id.to_string(),
                         "title": material.title,

@@ -58,6 +58,7 @@ export async function listSnippets(materialId: string): Promise<Snippet[]> {
 }
 
 export interface IngestResult {
+  cut_collection?: { id: string; name: string };
   material: { id: string; title: string };
   snippets: Snippet[];
 }
