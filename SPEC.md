@@ -108,6 +108,43 @@ The API key is read from `import.meta.env.VITE_ANTHROPIC_API_KEY`. The Anthropic
 - Paste custom text instead of AI generation
 
 
+# GitHub Repo Ingestion
+
+## Overview
+
+User pastes a GitHub URL → backend fetches & processes the repo → creates a `Material` + `Snippet`s ready to type.
+
+## Pipeline
+
+```mermaid
+flowchart TD
+    A[POST /materials/from-github\n{url}] --> B{Validate URL\ngithub.com?}
+    B -->|no| ERR1[422 Invalid URL]
+    B -->|yes| C[GitHub API\nfetch repo tree\nGET /repos/:owner/:repo/git/trees/:sha?recursive=1]
+    C -->|404/403| ERR2[404 Repo not found\nor private]
+    C --> D[Filter files\n.md .txt .rs .go .ts .py etc.\nskip binaries, vendor, node_modules]
+    D --> E[Fetch file contents\nGitHub raw API\nbatch, cap at 50 files]
+    E --> F[Flatten & clean\nstrip markdown headers\nnormalise whitespace]
+    F --> G[Build material\ntitle = owner/repo\ncontent = concatenated text]
+    G --> H[db::materials::create]
+    H --> I[action_pool /v1/ingest/process\nsplit into typing snippets via Claude]
+    I --> J[db::snippets::insert_batch]
+    J --> K[201 MaterialDto + snippets]
+```
+
+## Decisions
+
+- **File types:** `.md`, `.txt`, `.rs`, `.go`, `.ts`, `.js`, `.py`, `.java`, `.c`, `.cpp`
+- **Skip:** `vendor/`, `node_modules/`, `dist/`, binaries, files > 50KB each
+- **Size cap:** stop fetching once accumulated content reaches 100KB
+- **GitHub auth:** `GITHUB_TOKEN` env var — optional, used when set (higher rate limits, private repos)
+- **Private repos:** supported if `GITHUB_TOKEN` is present, otherwise 404 passthrough
+- **Snippet splitting:** reuses existing `create_and_process` → action_pool → Claude
+
+## Implementation location
+
+Entirely in the Rust backend (`src/materials/routes.rs` + a new `src/github.rs` module). No action_pool involvement in fetching — action_pool is only called for the snippet-splitting step, same as other material sources.
+
 # Agent knowledge system
 ```mermaid
 flowchart TD
