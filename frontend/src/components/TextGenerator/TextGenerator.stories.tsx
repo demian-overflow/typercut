@@ -17,6 +17,6 @@ type Story = StoryObj<typeof TextGenerator>;
 
 export const Default: Story = {
   args: {
-    onGenerated: (text: string) => console.log('Generated:', text),
+    onGenerated: (result) => console.log('Generated:', result),
   },
 };

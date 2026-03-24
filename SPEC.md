@@ -108,6 +108,91 @@ The API key is read from `import.meta.env.VITE_ANTHROPIC_API_KEY`. The Anthropic
 - Paste custom text instead of AI generation
 
 
+# Graph Traversal Animation
+
+During a typing test, a concept knowledge graph is displayed above the typing area and animated in real-time as the user types through the passage.
+
+## Concept
+
+Not a visual flourish — a semantic concept graph of the topic. Each node is a key concept covered by the passage; each edge is a named relationship between concepts. The passage is written so that typing through it naturally traverses the graph: completing a segment of text "visits" the corresponding concept node and animates traversal to the next.
+
+Example for "React hooks":
+```
+useState →(via)→ closures →(causes)→ re-renders →(triggers)→ useEffect →(requires)→ cleanup
+```
+
+## Data types
+
+```ts
+interface GraphNode {
+  id: string;
+  label: string;
+  x: number;            // 0–1 normalized canvas position
+  y: number;
+  segmentStart: number; // char index in text where this node's segment begins
+  segmentEnd: number;   // char index where it ends (exclusive)
+}
+
+interface GraphEdge {
+  from: string;
+  to: string;
+  label?: string;       // relationship type, e.g. "enables", "causes", "requires"
+}
+
+interface GraphData {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  traversalOrder: string[]; // node IDs in the order the passage visits them
+}
+```
+
+## Generation
+
+`POST /generate-with-graph` replaces `/generate` when using the AI generator. Claude returns JSON `{ text, graph }` in a single call:
+
+- System prompt instructs Claude to output strict JSON with no markdown wrapping
+- `graph.nodes` contains 4–8 concepts (one per sentence/clause grouping)
+- `graph.edges` contain directed relationships between concepts
+- `graph.traversalOrder` lists node IDs in text order
+- Node `x`/`y` are layout hints (0–1 normalized), spread so nodes don't overlap
+- Backend splits the text into N segments (one per node in `traversalOrder`) at word boundaries and fills in `segmentStart`/`segmentEnd` — the LLM does not compute char indices
+
+## `GraphCanvas` component
+
+Props: `graph: GraphData`, `activeNodeId: string | null`, `visitedNodeIds: Set<string>`
+
+Rendered as an SVG (400 × 160px, responsive):
+
+**Nodes** — circles (radius 18px):
+- Pending: gray fill (`#d1d5db`)
+- Active: blue fill (`#3b82f6`) + pulsing outer ring via CSS animation
+- Visited: green fill (`#22c55e`)
+- Label text centered below each circle
+
+**Edges** — lines between nodes with optional relationship label:
+- Unvisited: thin gray (`#e5e7eb`)
+- Active (being traversed): animated dashed stroke — a particle dot travels from source to destination using SVG `<animateMotion>`, triggered by re-mounting on `activeNodeId` change
+- Visited: solid green stroke
+
+**Layout**: node positions from `x`/`y` mapped to SVG coordinate space with padding.
+
+## `SpeedTyper` integration
+
+`SpeedTyper` accepts an optional `graph?: GraphData` prop. When present:
+
+- Renders `<GraphCanvas>` above the text area
+- Computes `activeNodeId` by finding the node whose `[segmentStart, segmentEnd)` contains `currentIndex`
+- Tracks `visitedNodeIds` as a `Set<string>` of all nodes whose segments have been fully passed
+- Passes both to `GraphCanvas`, which re-renders on each `activeNodeId` change
+
+The graph is purely additive — `SpeedTyper` without a `graph` prop behaves identically to before.
+
+## Storybook stories
+
+- `GraphCanvas` — static view showing a 5-node graph with node 2 active and nodes 0–1 visited
+- `SpeedTyper.WithGraph` — idle state with graph visible above the text
+
+
 # GitHub Repo Ingestion
 
 ## Overview

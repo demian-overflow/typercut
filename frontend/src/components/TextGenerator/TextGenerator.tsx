@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { generateText, type TextStyle, type TextLength } from '../../lib/textGenerator';
+import { generateWithGraph, type TextStyle, type TextLength, type GeneratedContent } from '../../lib/textGenerator';
 
 interface Props {
-  onGenerated: (text: string) => void;
+  onGenerated: (result: GeneratedContent) => void;
 }
 
 export default function TextGenerator({ onGenerated }: Props) {
@@ -17,8 +17,8 @@ export default function TextGenerator({ onGenerated }: Props) {
     setLoading(true);
     setError(null);
     try {
-      const text = await generateText(topic.trim(), style, length);
-      onGenerated(text);
+      const result = await generateWithGraph(topic.trim(), style, length);
+      onGenerated(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Generation failed');
     } finally {

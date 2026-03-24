@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import GraphCanvas from '../GraphCanvas/GraphCanvas';
+import type { GraphData } from '../../lib/textGenerator';
 
 export interface TypingStats {
   wpm: number;
@@ -15,6 +17,7 @@ interface CharState {
 
 interface Props {
   text: string;
+  graph?: GraphData;
   onComplete: (stats: TypingStats) => void;
   onReset?: () => void;
   onStart?: () => void;
@@ -70,7 +73,7 @@ function renderWords(chars: CharState[], currentIndex: number, showCursor: boole
   });
 }
 
-export default function SpeedTyper({ text, onComplete, onReset, onStart }: Props) {
+export default function SpeedTyper({ text, graph, onComplete, onReset, onStart }: Props) {
   const [chars, setChars] = useState<CharState[]>(() => buildChars(text));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -182,6 +185,21 @@ export default function SpeedTyper({ text, onComplete, onReset, onStart }: Props
     [state, currentIndex, text, startTime, totalKeystrokes, correctKeystrokes, reset, onReset, onComplete],
   );
 
+  // Derive active/visited node IDs from currentIndex when a graph is present
+  const { activeNodeId, visitedNodeIds } = useMemo(() => {
+    if (!graph) return { activeNodeId: null, visitedNodeIds: new Set<string>() };
+    let active: string | null = null;
+    const visited = new Set<string>();
+    for (const node of graph.nodes) {
+      if (currentIndex >= node.segment_end) {
+        visited.add(node.id);
+      } else if (currentIndex >= node.segment_start && active === null) {
+        active = node.id;
+      }
+    }
+    return { activeNodeId: active, visitedNodeIds: visited };
+  }, [graph, currentIndex]);
+
   return (
     <div
       ref={containerRef}
@@ -191,6 +209,16 @@ export default function SpeedTyper({ text, onComplete, onReset, onStart }: Props
       aria-label="Typing area — click and start typing"
       data-testid="typing-area"
     >
+      {graph && (
+        <div className="mb-4 rounded-lg bg-gray-50 p-2">
+          <GraphCanvas
+            graph={graph}
+            activeNodeId={activeNodeId}
+            visitedNodeIds={visitedNodeIds}
+          />
+        </div>
+      )}
+
       {state === 'typing' && (
         <div className="flex gap-6 mb-4 text-sm text-gray-500 font-mono">
           <span>{liveWpm} WPM</span>

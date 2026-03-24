@@ -31,6 +31,7 @@ pub fn build_app(state: AppState) -> Router {
     Router::new()
         .route("/health", get(health))
         .route("/generate", post(generate::generate))
+        .route("/generate-with-graph", post(generate::generate_with_graph))
         .route("/auth/google", get(auth::routes::login))
         .route("/auth/google/callback", get(auth::routes::callback))
         .route("/auth/me", get(auth::routes::me))

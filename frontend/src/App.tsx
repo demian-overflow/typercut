@@ -10,6 +10,7 @@ import SpeedTyper, { type TypingStats } from './components/SpeedTyper/SpeedTyper
 import ResultsPanel from './components/ResultsPanel/ResultsPanel';
 import { fetchMe } from './lib/auth';
 import type { Snippet } from './lib/materials';
+import type { GraphData, GeneratedContent } from './lib/textGenerator';
 import {
   startSession,
   completeSession,
@@ -66,14 +67,16 @@ function TypingApp({ user, onLogout }: TypingAppProps) {
   const [setupTab, setSetupTab] = useState<SetupTab>('generate');
   const [pendingSnippets, setPendingSnippets] = useState<Snippet[]>([]);
   const [text, setText] = useState(DEFAULT_TEXT);
+  const [graph, setGraph] = useState<GraphData | undefined>(undefined);
   const [stats, setStats] = useState<TypingStats | null>(null);
   const [retryKey, setRetryKey] = useState(0);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [activeSnippetId, setActiveSnippetId] = useState<string | null>(null);
   const [activeSource, setActiveSource] = useState<SessionSource>('manual');
 
-  const handleGenerated = (generated: string) => {
-    setText(generated);
+  const handleGenerated = (result: GeneratedContent) => {
+    setText(result.text);
+    setGraph(result.graph);
     setStats(null);
     setActiveSource('generated');
     setActiveSnippetId(null);
@@ -87,6 +90,7 @@ function TypingApp({ user, onLogout }: TypingAppProps) {
 
   const handleSnippetSelected = (snippetText: string, snippetId?: string) => {
     setText(snippetText);
+    setGraph(undefined);
     setStats(null);
     setActiveSource('snippet');
     setActiveSnippetId(snippetId ?? null);
@@ -213,6 +217,7 @@ function TypingApp({ user, onLogout }: TypingAppProps) {
             <SpeedTyper
               key={retryKey}
               text={text}
+              graph={graph}
               onComplete={handleComplete}
               onReset={handleRetry}
               onStart={handleTypingStart}
