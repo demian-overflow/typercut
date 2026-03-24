@@ -45,6 +45,22 @@ pub async fn find_by_id(
         .await?)
 }
 
+pub async fn update(
+    db: &DatabaseConnection,
+    id: Uuid,
+    user_id: Uuid,
+    name: &str,
+    description: Option<&str>,
+) -> Result<Option<cut_collection::Model>> {
+    let Some(existing) = find_by_id(db, id, user_id).await? else {
+        return Ok(None);
+    };
+    let mut active: ActiveModel = existing.into();
+    active.name = Set(name.to_string());
+    active.description = Set(description.map(str::to_string));
+    Ok(Some(active.update(db).await?))
+}
+
 pub async fn delete(db: &DatabaseConnection, id: Uuid, user_id: Uuid) -> Result<bool> {
     let result = CutCollection::delete_by_id(id)
         .filter(Column::UserId.eq(user_id))

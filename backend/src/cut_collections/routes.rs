@@ -48,6 +48,12 @@ pub struct CreateCollectionBody {
     pub description: Option<String>,
 }
 
+#[derive(Deserialize)]
+pub struct UpdateCollectionBody {
+    pub name: String,
+    pub description: Option<String>,
+}
+
 #[derive(Serialize)]
 pub struct CutCollectionDto {
     pub id: String,
@@ -130,6 +136,51 @@ pub async fn create(
             .into_response(),
         Err(e) => {
             tracing::error!("create cut_collection: {e}");
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({ "error": "Database error" })),
+            )
+                .into_response()
+        }
+    }
+}
+
+// ── PATCH /cut-collections/:id ────────────────────────────────────────────────
+
+pub async fn update(
+    State(state): State<AppState>,
+    headers: axum::http::HeaderMap,
+    Path(id): Path<Uuid>,
+    Json(body): Json<UpdateCollectionBody>,
+) -> Response {
+    let user_id = match auth(&headers, &state.config.jwt_secret) {
+        Ok(uid) => uid,
+        Err(r) => return r,
+    };
+
+    match db::cut_collections::update(
+        &state.db,
+        id,
+        user_id,
+        &body.name,
+        body.description.as_deref(),
+    )
+    .await
+    {
+        Ok(Some(c)) => Json(CutCollectionDto {
+            id: c.id.to_string(),
+            name: c.name,
+            description: c.description,
+            created_at: c.created_at.to_rfc3339(),
+        })
+        .into_response(),
+        Ok(None) => (
+            StatusCode::NOT_FOUND,
+            Json(serde_json::json!({ "error": "Not found" })),
+        )
+            .into_response(),
+        Err(e) => {
+            tracing::error!("update cut_collection: {e}");
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
                 Json(serde_json::json!({ "error": "Database error" })),

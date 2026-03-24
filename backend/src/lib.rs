@@ -36,7 +36,7 @@ pub fn build_app(state: AppState) -> Router {
         .route("/auth/me", get(auth::routes::me))
         // Cut collections
         .route("/cut-collections", post(cut_collections::routes::create).get(cut_collections::routes::list))
-        .route("/cut-collections/{id}", delete(cut_collections::routes::remove))
+        .route("/cut-collections/{id}", patch(cut_collections::routes::update).delete(cut_collections::routes::remove))
         .route("/cut-collections/{id}/snippets", get(cut_collections::routes::list_snippets))
         // Material ingestion
         .route("/materials", post(materials::routes::create).get(materials::routes::list))

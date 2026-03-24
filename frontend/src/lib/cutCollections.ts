@@ -31,6 +31,16 @@ export async function createCutCollection(name: string, description?: string): P
   return res.json() as Promise<CutCollection>;
 }
 
+export async function updateCutCollection(id: string, name: string, description?: string): Promise<CutCollection> {
+  const res = await fetch(`${API}/cut-collections/${id}`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+    body: JSON.stringify({ name, description: description ?? null }),
+  });
+  if (!res.ok) throw new Error(`Failed to update collection: ${res.status}`);
+  return res.json() as Promise<CutCollection>;
+}
+
 export async function deleteCutCollection(id: string): Promise<void> {
   const res = await fetch(`${API}/cut-collections/${id}`, {
     method: 'DELETE',

@@ -128,6 +128,7 @@ export default function SpeedTyper({ text, onComplete, onReset, onStart }: Props
       }
 
       if (e.key === 'Backspace') {
+        e.preventDefault();
         if (currentIndex === 0) return;
         setChars((prev) => {
           const next = [...prev];
@@ -139,6 +140,7 @@ export default function SpeedTyper({ text, onComplete, onReset, onStart }: Props
       }
 
       if (e.key.length !== 1) return;
+      e.preventDefault();
 
       const now = Date.now();
       if (state === 'idle') {
