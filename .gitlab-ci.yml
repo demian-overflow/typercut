@@ -62,7 +62,7 @@ build-backend:
     - if: $CI_COMMIT_BRANCH == "main"
       changes:
         - backend/**/*
-  timeout: 45m
+  timeout: 2h
 
 # ── Fingerprint ───────────────────────────────────────────────────────────────
 

@@ -1,20 +1,24 @@
-FROM rust:1.88-slim-bookworm AS builder
+FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
+WORKDIR /app
 
+# ── Plan ──────────────────────────────────────────────────────────────────────
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
+
+# ── Build deps (cached as long as Cargo.toml/Cargo.lock unchanged) ────────────
+FROM chef AS builder
 RUN apt-get update \
  && apt-get install -y pkg-config libssl-dev cmake libsasl2-dev g++ libcurl4-openssl-dev \
  && rm -rf /var/lib/apt/lists/*
+COPY --from=planner /app/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
 
-WORKDIR /app
-COPY Cargo.toml Cargo.lock ./
-# Pre-fetch deps with stub binary for better layer caching
-RUN mkdir -p src migrations \
- && echo 'fn main() {}' > src/main.rs \
- && cargo build --release 2>/dev/null || true \
- && rm -rf src
-
+# ── Build application ─────────────────────────────────────────────────────────
 COPY . .
 RUN cargo build --release
 
+# ── Runtime ───────────────────────────────────────────────────────────────────
 FROM debian:bookworm-slim AS runtime
 RUN apt-get update \
  && apt-get install -y libssl3 ca-certificates libsasl2-2 \
