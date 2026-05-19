@@ -8,6 +8,8 @@ import SnippetBrowser from './components/SnippetBrowser/SnippetBrowser';
 import CutCollectionBrowser from './components/CutCollectionBrowser/CutCollectionBrowser';
 import SpeedTyper, { type TypingStats } from './components/SpeedTyper/SpeedTyper';
 import ResultsPanel from './components/ResultsPanel/ResultsPanel';
+import ReaderPage from './components/ReaderPage/ReaderPage';
+import { schedulerEssay } from './fixtures/scheduler-essay';
 import { fetchMe } from './lib/auth';
 import type { Snippet } from './lib/materials';
 import type { GraphData, GeneratedContent } from './lib/textGenerator';
@@ -22,6 +24,13 @@ import './index.css';
 const DEFAULT_TEXT = 'The quick brown fox jumps over the lazy dog.';
 
 export default function App() {
+  // Public reader routes bypass auth — the essay reader is the new product
+  // front door (essay-first pivot). PR 1 seeds a single hardcoded essay;
+  // backend wiring lands in PR 3.
+  if (window.location.pathname.startsWith('/r/')) {
+    return <ReaderPage essay={schedulerEssay} />;
+  }
+
   return (
     <AuthProvider>
       <Inner />
